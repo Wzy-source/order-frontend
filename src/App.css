@@ -40,3 +40,51 @@
 .read-the-docs {
   color: #888;
 }
+
+
+
+/* Add this to src/App.css or src/index.css */
+
+.app-content-container {
+  max-width: 1200px; /* Adjust this value as needed - e.g., 960px, 1140px, 1280px */
+  margin-left: auto;  /* Automatically calculate left margin */
+  margin-right: auto; /* Automatically calculate right margin */
+  padding: 20px;      /* Add padding inside the container */
+  width: 100%;        /* Ensure it tries to take available width up to max-width */
+  box-sizing: border-box; /* Include padding in the element's total width */
+}
+
+/* You might want to ensure the body takes full width */
+/* Add this to src/index.css if not already present */
+body {
+  /* ... other body styles ... */
+  width: 100%;
+  box-sizing: border-box;
+}
+
+
+/* Keep existing styles from previous steps */
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 2rem;
+}
+
+.app-header h1 {
+  margin: 0;
+}
+
+.app-main {
+  width: 100%;
+  text-align: left;
+}
+
+.connect-prompt {
+  text-align: center;
+  margin-top: 3rem;
+  color: #666;
+  font-size: 1.1em;
+}

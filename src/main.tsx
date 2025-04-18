@@ -1,10 +1,14 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.tsx'
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App.tsx';
+import WalletAdapterSetup from './WalletAdapterSetup.tsx'; // Import the setup component
+import './index.css';
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-)
+ReactDOM.createRoot(document.getElementById('root')!).render(
+    <React.StrictMode>
+        {/* Use the imported setup component */}
+        <WalletAdapterSetup>
+            <App />
+        </WalletAdapterSetup>
+    </React.StrictMode>,
+);
