@@ -13,7 +13,7 @@ function App() {
             {/* Add an inner container div for the main content */}
             <div className="app-content-container">
                 <header className="app-header">
-                    <h1 style={{ marginRight: '10px' }}>My Solana dApp</h1>
+                    <h1 style={{ marginRight: '10px' }}>Cross-Border Payment Dapp</h1>
                     <WalletMultiButton />
                 </header>
 
@@ -22,7 +22,7 @@ function App() {
                         <MainApp />
                     ) : (
                         <p className="connect-prompt">
-                            Please connect your wallet using the button above to continue.
+                            Please connect your solana wallet using the button above to continue.
                         </p>
                     )}
                 </main>
