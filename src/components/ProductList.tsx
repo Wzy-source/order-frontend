@@ -29,7 +29,6 @@ export const ProductList: React.FC<ProductListProps> = ({ products }) => {
             <ul style={styles.list}>
                 {products.map((product) => (
                     <li key={product.id} style={styles.listItem}>
-                        <img src={product.imageUrl} alt={product.name} style={styles.image} />
                         <div>
                             <strong>{product.name}</strong><br />
                             Price: {lamportsToDecimalString(product.priceLamports)} USDC<br />

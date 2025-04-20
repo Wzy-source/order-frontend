@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { OrderData } from '../types';
+import { OrderData,OrderStatus } from '../types';
 import { OrderItem } from './OrderItem';
 import { BACKEND_URL } from '../config'; // Use backend for fetching
 
@@ -7,6 +7,30 @@ interface OrderListProps {
     userPublicKey: string;
     role: 'buyer' | 'seller';
 }
+
+const statusValueMap: Record<string, OrderStatus> = {
+    unpaid: OrderStatus.Unpaid,
+    paid: OrderStatus.Paid,
+    shipped: OrderStatus.Shipped,
+    signed: OrderStatus.Signed,
+    confirmed: OrderStatus.Confirmed,
+    completed: OrderStatus.Completed,
+    unfulfilled: OrderStatus.Unfulfilled,
+};
+
+
+// 4. The getStatusString function (can be reused or integrated)
+const getStatusStringFromRustObject = (rustStatus: unknown): number => {
+    if (typeof rustStatus !== 'object' || rustStatus === null || Array.isArray(rustStatus)) {
+        return -1;
+    }
+    const keys = Object.keys(rustStatus);
+    if (keys.length !== 1) {
+        return -1;
+    }
+    const statusKey:string = keys[0];
+    return statusValueMap[statusKey];
+};
 
 export const OrderList: React.FC<OrderListProps> = ({ userPublicKey, role }) => {
     const [orders, setOrders] = useState<OrderData[]>([]);
@@ -17,7 +41,6 @@ export const OrderList: React.FC<OrderListProps> = ({ userPublicKey, role }) => 
     const fetchOrders = useCallback(async () => {
         setIsLoading(true);
         setError(null);
-        console.log(`Fetching orders for ${role}: ${userPublicKey}`);
 
         try {
             // **DEMO:** Fetch ALL orders from backend and filter client-side
@@ -26,11 +49,25 @@ export const OrderList: React.FC<OrderListProps> = ({ userPublicKey, role }) => 
             if (!response.ok) throw new Error('Failed to fetch orders from backend');
             const allOrders: OrderData[] = await response.json();
 
-            const filteredOrders = allOrders.filter(order =>
+            // 将rust中order的状态映射为typescript定义的order的状态：
+            const transformedOrders: OrderData[] = allOrders.map(orderFromBackend => {
+                // Use the helper function to get the string status
+                const stringStatus = getStatusStringFromRustObject(orderFromBackend.status);
+
+                // Return a new object conforming to the OrderData interface (with string status)
+                return {
+                    ...orderFromBackend, // Copy all existing properties
+                    status: stringStatus, // Override the status property with the transformed string
+                };
+            });
+
+
+            const filteredOrders = transformedOrders.filter(order =>
                 (role === 'buyer' && order.buyer === userPublicKey) ||
                 (role === 'seller' && order.seller === userPublicKey)
             );
             console.log(`Found ${filteredOrders.length} orders for ${role}`);
+            console.log(filteredOrders);
             setOrders(filteredOrders);
 
             /* // **Alternative (Direct Fetch - Inefficient):**
@@ -63,8 +100,10 @@ export const OrderList: React.FC<OrderListProps> = ({ userPublicKey, role }) => 
             setOrders(userOrders);
             */
 
-        } catch (err: any) {
+        } catch (err:unknown) {
             console.error("Failed to fetch orders:", err);
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error
             setError(err.message || "Could not load orders.");
         } finally {
             setIsLoading(false);

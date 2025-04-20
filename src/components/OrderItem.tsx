@@ -34,8 +34,10 @@ export const OrderItem: React.FC<OrderItemProps> = ({ order, role, onActionCompl
             } else {
                 setError("Action failed. Check console for details.");
             }
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error("Action failed:", err);
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error
             setError(err.message || "An error occurred during the action.");
         } finally {
             setIsLoading(false);
@@ -52,10 +54,11 @@ export const OrderItem: React.FC<OrderItemProps> = ({ order, role, onActionCompl
     const canClaimOrder = role === 'seller' &&
         (order.status === OrderStatus.Confirmed || order.status === OrderStatus.Signed); // Add timeout check logic if needed
 
+
     return (
         <div style={styles.orderItem}>
             <h4>Order (Trade ID: {order.tradeId})</h4>
-            <p>Status: <strong>{getStatusString(order.status)}</strong></p>
+            <p>Status: <strong>{getStatusString(order.status as number)}</strong></p>
             <p>Amount: {lamportsToDecimalString(order.orderAmount)} USDC</p>
             <p>Paid: {lamportsToDecimalString(order.paidAmount)} USDC</p>
             <p>Claimed: {lamportsToDecimalString(order.claimedAmount)} USDC</p>

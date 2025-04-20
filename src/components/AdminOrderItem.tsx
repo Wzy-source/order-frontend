@@ -31,8 +31,10 @@ export const AdminOrderItem: React.FC<AdminOrderItemProps> = ({ order, onActionC
             }
             alert(`Successfully set status to ${newState}. Tx: ${result.signature}`);
             onActionComplete(); // Refresh list
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error(`Failed to set status to ${newState}:`, err);
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error
             setError(err.message || `Failed to set status to ${newState}.`);
         } finally {
             setIsLoading(false);
@@ -45,7 +47,7 @@ export const AdminOrderItem: React.FC<AdminOrderItemProps> = ({ order, onActionC
     return (
         <div style={styles.orderItem}>
             <h4>Order (Trade ID: {order.tradeId})</h4>
-            <p>Status: <strong>{getStatusString(order.status)}</strong></p>
+            <p>Status: <strong>{getStatusString(order.status as number)}</strong></p>
             <p>Amount: {lamportsToDecimalString(order.orderAmount)} USDC</p>
             <p><small>Buyer: {order.buyer}</small></p>
             <p><small>Seller: {order.seller}</small></p>

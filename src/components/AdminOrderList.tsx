@@ -1,7 +1,31 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { OrderData } from '../types';
+import {OrderData, OrderStatus} from '../types';
 import { AdminOrderItem } from './AdminOrderItem';
 import { BACKEND_URL } from '../config';
+
+const statusValueMap: Record<string, OrderStatus> = {
+    unpaid: OrderStatus.Unpaid,
+    paid: OrderStatus.Paid,
+    shipped: OrderStatus.Shipped,
+    signed: OrderStatus.Signed,
+    confirmed: OrderStatus.Confirmed,
+    completed: OrderStatus.Completed,
+    unfulfilled: OrderStatus.Unfulfilled,
+};
+
+
+// 4. The getStatusString function (can be reused or integrated)
+const getStatusStringFromRustObject = (rustStatus: unknown): number => {
+    if (typeof rustStatus !== 'object' || rustStatus === null || Array.isArray(rustStatus)) {
+        return -1;
+    }
+    const keys = Object.keys(rustStatus);
+    if (keys.length !== 1) {
+        return -1;
+    }
+    const statusKey:string = keys[0];
+    return statusValueMap[statusKey];
+};
 
 export const AdminOrderList: React.FC = () => {
     const [orders, setOrders] = useState<OrderData[]>([]);
@@ -15,9 +39,22 @@ export const AdminOrderList: React.FC = () => {
             const response = await fetch(`${BACKEND_URL}/orders/all`);
             if (!response.ok) throw new Error('Failed to fetch orders from backend');
             const allOrders: OrderData[] = await response.json();
-            setOrders(allOrders);
-        } catch (err: any) {
+            // 将rust中order的状态映射为typescript定义的order的状态：
+            const transformedOrders: OrderData[] = allOrders.map(orderFromBackend => {
+                // Use the helper function to get the string status
+                const stringStatus = getStatusStringFromRustObject(orderFromBackend.status);
+
+                // Return a new object conforming to the OrderData interface (with string status)
+                return {
+                    ...orderFromBackend, // Copy all existing properties
+                    status: stringStatus, // Override the status property with the transformed string
+                };
+            });
+            setOrders(transformedOrders);
+        } catch (err: unknown) {
             console.error("Failed to fetch orders for admin:", err);
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error
             setError(err.message || "Could not load orders.");
         } finally {
             setIsLoading(false);

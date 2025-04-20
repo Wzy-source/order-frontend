@@ -29,6 +29,7 @@ export const CreateOrderModal: React.FC<CreateOrderModalProps> = ({ product, onC
             const tradeId = new BN(Date.now()); // Using timestamp as simple trade ID
 
             const orderAmountLamports = new BN(product.priceLamports);
+            // 这里报错：
             const sellerPublicKey = new PublicKey(product.seller);
 
             const txSignature = await createOrder(
@@ -41,8 +42,10 @@ export const CreateOrderModal: React.FC<CreateOrderModalProps> = ({ product, onC
             console.log(`Order creation successful: ${txSignature}`);
             onOrderCreated(txSignature!);
             onClose(); // Close modal on success
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error("Order creation failed:", err);
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error
             setError(err.message || "Failed to create order.");
         } finally {
             setIsLoading(false);

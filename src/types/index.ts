@@ -51,7 +51,7 @@ export interface OrderData {
     claimedAmount: string;// Amount claimed by seller/buyer in lamports as a string (converted from BN)
     paymentMode: PaymentMode; // The payment mode enum
     advancePercentage: number; // Percentage for advance payments (0-100)
-    status: OrderStatus;      // The current order status enum
+    status: unknown;    // The current order status enum
     createdAt: string;   // Timestamp as a string (converted from BN/i64)
     paidAt: string;      // Timestamp as a string
     shippedAt: string;   // Timestamp as a string

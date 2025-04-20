@@ -21,7 +21,9 @@ function BuyerPage() {
                 if (!response.ok) throw new Error('Failed to fetch products');
                 const data = await response.json();
                 setProducts(data);
-            } catch (err: any) {
+            } catch (err: unknown) {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-expect-error
                 setErrorProducts(err.message || 'An error occurred');
             } finally {
                 setIsLoadingProducts(false);
