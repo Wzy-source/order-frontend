@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import {OrderData, OrderStatus} from '../types';
+import {OrderData, OrderStatus, PaymentMode} from '../types';
 import { AdminOrderItem } from './AdminOrderItem';
 import { BACKEND_URL } from '../config';
 
@@ -27,6 +27,27 @@ const getStatusStringFromRustObject = (rustStatus: unknown): number => {
     return statusValueMap[statusKey];
 };
 
+
+
+const paymentModeValueMap: Record<string, PaymentMode> = {
+    advance: PaymentMode.Advance,
+    direct: PaymentMode.Direct,
+};
+
+
+const getPaymentModeStringFromRustObject = (rustPaymentMode:unknown):number => {
+    if (typeof rustPaymentMode !== 'object' || rustPaymentMode === null || Array.isArray(rustPaymentMode)) {
+        return -1;
+    }
+    const keys = Object.keys(rustPaymentMode);
+    if (keys.length !== 1) {
+        return -1;
+    }
+    const modeKey:string = keys[0];
+    return paymentModeValueMap[modeKey];
+}
+
+
 export const AdminOrderList: React.FC = () => {
     const [orders, setOrders] = useState<OrderData[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -43,11 +64,13 @@ export const AdminOrderList: React.FC = () => {
             const transformedOrders: OrderData[] = allOrders.map(orderFromBackend => {
                 // Use the helper function to get the string status
                 const stringStatus = getStatusStringFromRustObject(orderFromBackend.status);
+                const stringPaymentMode = getPaymentModeStringFromRustObject(orderFromBackend.paymentMode);
 
                 // Return a new object conforming to the OrderData interface (with string status)
                 return {
                     ...orderFromBackend, // Copy all existing properties
                     status: stringStatus, // Override the status property with the transformed string
+                    paymentMode:stringPaymentMode
                 };
             });
             setOrders(transformedOrders);
