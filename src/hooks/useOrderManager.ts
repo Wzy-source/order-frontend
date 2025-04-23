@@ -160,35 +160,35 @@ export const useOrderManager = () => {
     }, [program, wallet, provider, findOrderStatePDA, findConfigPDA, findVaultAuthorityPDA]);
 
     // Buyer: Confirm Order Receipt
-    const confirmOrder = useCallback(async (tradeId: anchor.BN): Promise<string | null> => {
-        if (!program || !wallet?.publicKey || !provider) {
-            console.error("Cannot confirm order: Wallet not connected or program not initialized.");
-            throw new Error("Wallet not connected or program not initialized");
-        }
-        const [orderPDA] = findOrderStatePDA(tradeId);
-        console.log(`Confirming Order ${tradeId.toString()}...`);
-
-        try {
-            const txSignature = await program.methods
-                .confirmOrder(tradeId)
-                .accounts({
-                    buyer: provider.wallet.publicKey,
-                    orderState: orderPDA,
-                    clock: SYSVAR_CLOCK_PUBKEY,
-                })
-                .rpc();
-            console.log(`Confirm Order Tx Signature: ${txSignature}`);
-            return txSignature;
-        } catch (error) {
-            console.error("Error confirming order:", error);
-            if (error instanceof anchor.AnchorError) {
-                console.error("AnchorError:", error.error);
-                console.error("Logs:", error.logs);
-                throw new Error(`Blockchain Error: ${error.error.errorMessage}`);
-            }
-            throw error;
-        }
-    }, [program, wallet, provider, findOrderStatePDA]);
+    // const confirmOrder = useCallback(async (tradeId: anchor.BN): Promise<string | null> => {
+    //     if (!program || !wallet?.publicKey || !provider) {
+    //         console.error("Cannot confirm order: Wallet not connected or program not initialized.");
+    //         throw new Error("Wallet not connected or program not initialized");
+    //     }
+    //     const [orderPDA] = findOrderStatePDA(tradeId);
+    //     console.log(`Confirming Order ${tradeId.toString()}...`);
+    //
+    //     try {
+    //         const txSignature = await program.methods
+    //             .confirmOrder(tradeId)
+    //             .accounts({
+    //                 buyer: provider.wallet.publicKey,
+    //                 orderState: orderPDA,
+    //                 clock: SYSVAR_CLOCK_PUBKEY,
+    //             })
+    //             .rpc();
+    //         console.log(`Confirm Order Tx Signature: ${txSignature}`);
+    //         return txSignature;
+    //     } catch (error) {
+    //         console.error("Error confirming order:", error);
+    //         if (error instanceof anchor.AnchorError) {
+    //             console.error("AnchorError:", error.error);
+    //             console.error("Logs:", error.logs);
+    //             throw new Error(`Blockchain Error: ${error.error.errorMessage}`);
+    //         }
+    //         throw error;
+    //     }
+    // }, [program, wallet, provider, findOrderStatePDA]);
 
     // Buyer: Redeem Order (if seller timeout)
     const redeemOrder = useCallback(async (tradeId: anchor.BN): Promise<string | null> => {
@@ -344,7 +344,6 @@ export const useOrderManager = () => {
                 createdAt: accountData.createdAt.toString(),
                 paidAt: accountData.paidAt.toString(),
                 shippedAt: accountData.shippedAt.toString(),
-                signedAt: accountData.signedAt.toString(),
                 confirmedAt: accountData.confirmedAt.toString(),
                 completedAt: accountData.completedAt.toString(),
             };
@@ -414,7 +413,6 @@ export const useOrderManager = () => {
         // Blockchain Interaction Functions
         createOrder,
         payOrder,
-        confirmOrder,
         redeemOrder,
         claimAdvance,
         claimOrder,

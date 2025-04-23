@@ -16,10 +16,9 @@ export enum OrderStatus {
     Unpaid = 0,
     Paid = 1,
     Shipped = 2,
-    Signed = 3,
-    Confirmed = 4,
-    Completed = 5,
-    Unfulfilled = 6,
+    Confirmed = 3,
+    Completed = 4,
+    Unfulfilled = 5,
 }
 
 /**
@@ -55,7 +54,6 @@ export interface OrderData {
     createdAt: string;   // Timestamp as a string (converted from BN/i64)
     paidAt: string;      // Timestamp as a string
     shippedAt: string;   // Timestamp as a string
-    signedAt: string;    // Timestamp as a string
     confirmedAt: string; // Timestamp as a string
     completedAt: string; // Timestamp as a string
     // Note: BN and PublicKey types from blockchain fetches are converted to strings/numbers/enums
@@ -76,7 +74,7 @@ export interface CreateProductPayload {
  * Type used when setting order state via the Admin API.
  */
 export interface SetOrderStatePayload {
-    status: 'Shipped' | 'Signed'; // Explicitly define allowed string values
+    status: 'Shipped' | 'Confirmed'; // Explicitly define allowed string values
 }
 
 // You can add more shared types here as needed for API requests/responses etc.

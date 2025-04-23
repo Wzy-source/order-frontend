@@ -14,7 +14,7 @@ export const AdminOrderItem: React.FC<AdminOrderItemProps> = ({ order, onActionC
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const handleSetState = async (newState: 'Shipped' | 'Signed') => {
+    const handleSetState = async (newState: 'Shipped' | 'Confirmed') => {
         if (isLoading) return;
         setIsLoading(true);
         setError(null);
@@ -42,7 +42,7 @@ export const AdminOrderItem: React.FC<AdminOrderItemProps> = ({ order, onActionC
     };
 
     const canMarkShipped = order.status === OrderStatus.Paid;
-    const canMarkSigned = order.status === OrderStatus.Shipped;
+    const canMarkConfirmed = order.status === OrderStatus.Shipped;
 
     return (
         <div style={styles.orderItem}>
@@ -55,7 +55,7 @@ export const AdminOrderItem: React.FC<AdminOrderItemProps> = ({ order, onActionC
             {error && <p style={{ color: 'red' }}>Error: {error}</p>}
             <div style={styles.actions}>
                 {canMarkShipped && <button onClick={() => handleSetState('Shipped')} disabled={isLoading}>Mark as Shipped</button>}
-                {canMarkSigned && <button onClick={() => handleSetState('Signed')} disabled={isLoading}>Mark as Signed</button>}
+                {canMarkConfirmed && <button onClick={() => handleSetState('Confirmed')} disabled={isLoading}>Mark as Confirmed</button>}
             </div>
         </div>
     );

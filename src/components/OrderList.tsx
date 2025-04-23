@@ -12,7 +12,6 @@ const statusValueMap: Record<string, OrderStatus> = {
     unpaid: OrderStatus.Unpaid,
     paid: OrderStatus.Paid,
     shipped: OrderStatus.Shipped,
-    signed: OrderStatus.Signed,
     confirmed: OrderStatus.Confirmed,
     completed: OrderStatus.Completed,
     unfulfilled: OrderStatus.Unfulfilled,
@@ -110,7 +109,6 @@ export const OrderList: React.FC<OrderListProps> = ({ userPublicKey, role }) => 
                      createdAt: acc.account.createdAt.toString(),
                      paidAt: acc.account.paidAt.toString(),
                      shippedAt: acc.account.shippedAt.toString(),
-                     signedAt: acc.account.signedAt.toString(),
                      confirmedAt: acc.account.confirmedAt.toString(),
                      completedAt: acc.account.completedAt.toString(),
                 }))

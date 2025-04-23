@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { useWallet } from '@solana/wallet-adapter-react';
-import { BN } from '@coral-xyz/anchor';
+import React, {useState} from 'react';
+import {useWallet} from '@solana/wallet-adapter-react';
+import {BN} from '@coral-xyz/anchor';
 import {OrderData, OrderStatus, PaymentMode} from '../types';
-import { useOrderManager } from '../hooks/useOrderManager';
-import { lamportsToDecimalString } from '../utils/formatting';
+import {useOrderManager} from '../hooks/useOrderManager';
+import {lamportsToDecimalString} from '../utils/formatting';
 
 interface OrderItemProps {
     order: OrderData;
@@ -16,9 +16,9 @@ const getStatusString = (status: OrderStatus): string => {
     return OrderStatus[status] || 'Unknown';
 };
 
-export const OrderItem: React.FC<OrderItemProps> = ({ order, role, onActionComplete }) => {
-    const { publicKey } = useWallet();
-    const { payOrder, confirmOrder, redeemOrder, claimAdvance, claimOrder } = useOrderManager();
+export const OrderItem: React.FC<OrderItemProps> = ({order, role, onActionComplete}) => {
+    const {publicKey} = useWallet();
+    const {payOrder, redeemOrder, claimAdvance, claimOrder} = useOrderManager();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -45,14 +45,13 @@ export const OrderItem: React.FC<OrderItemProps> = ({ order, role, onActionCompl
     };
 
     const canPay = role === 'buyer' && order.status === OrderStatus.Unpaid;
-    const canConfirm = role === 'buyer' && order.status === OrderStatus.Signed;
     const canRedeem = role === 'buyer' && order.status === OrderStatus.Paid; // Add time check logic here or in hook if needed
     const canClaimAdvance = role === 'seller' &&
         order.paymentMode === PaymentMode.Advance &&
-        (order.status === OrderStatus.Shipped || order.status === OrderStatus.Signed || order.status === OrderStatus.Confirmed) &&
+        (order.status === OrderStatus.Shipped || order.status === OrderStatus.Confirmed) &&
         new BN(order.claimedAmount).isZero(); // Only if advance not claimed
     const canClaimOrder = role === 'seller' &&
-        (order.status === OrderStatus.Confirmed || order.status === OrderStatus.Signed); // Add timeout check logic if needed
+        order.status === OrderStatus.Confirmed; // Add timeout check logic if needed
 
 
     return (
@@ -68,24 +67,26 @@ export const OrderItem: React.FC<OrderItemProps> = ({ order, role, onActionCompl
             <p><small>Created: {new Date(parseInt(order.createdAt) * 1000).toLocaleString()}</small></p>
             {/* Display other timestamps if needed */}
 
-            {error && <p style={{ color: 'red' }}>Error: {error}</p>}
+            {error && <p style={{color: 'red'}}>Error: {error}</p>}
 
             <div style={styles.actions}>
                 {/* Buyer Actions */}
                 {canPay && <button onClick={() => handleAction(payOrder)} disabled={isLoading}>Pay Order</button>}
-                {canConfirm && <button onClick={() => handleAction(confirmOrder)} disabled={isLoading}>Confirm Receipt</button>}
                 {/* Add button for Redeem based on canRedeem and timeout check */}
-                {canRedeem && <button onClick={() => handleAction(redeemOrder)} disabled={isLoading}>Redeem (If Timeout)</button>}
+                {canRedeem &&
+                  <button onClick={() => handleAction(redeemOrder)} disabled={isLoading}>Redeem (If Timeout)</button>}
 
                 {/* Seller Actions */}
-                {canClaimAdvance && <button onClick={() => handleAction(claimAdvance)} disabled={isLoading}>Claim Advance</button>}
-                {canClaimOrder && <button onClick={() => handleAction(claimOrder)} disabled={isLoading}>Claim Final Payment</button>}
+                {canClaimAdvance &&
+                  <button onClick={() => handleAction(claimAdvance)} disabled={isLoading}>Claim Advance</button>}
+                {canClaimOrder &&
+                  <button onClick={() => handleAction(claimOrder)} disabled={isLoading}>Claim Final Payment</button>}
             </div>
         </div>
     );
 };
 
 const styles = {
-    orderItem: { border: '1px solid #eee', padding: '15px', marginBottom: '10px', borderRadius: '5px' },
-    actions: { marginTop: '10px', display: 'flex', gap: '10px', flexWrap: 'wrap' },
+    orderItem: {border: '1px solid #eee', padding: '15px', marginBottom: '10px', borderRadius: '5px'},
+    actions: {marginTop: '10px', display: 'flex', gap: '10px', flexWrap: 'wrap'},
 } as const;

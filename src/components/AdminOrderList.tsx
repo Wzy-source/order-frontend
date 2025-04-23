@@ -7,7 +7,6 @@ const statusValueMap: Record<string, OrderStatus> = {
     unpaid: OrderStatus.Unpaid,
     paid: OrderStatus.Paid,
     shipped: OrderStatus.Shipped,
-    signed: OrderStatus.Signed,
     confirmed: OrderStatus.Confirmed,
     completed: OrderStatus.Completed,
     unfulfilled: OrderStatus.Unfulfilled,
