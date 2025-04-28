@@ -1,15 +1,15 @@
-import { useAnchorWallet, useConnection } from '@solana/wallet-adapter-react';
+import {useAnchorWallet} from '@solana/wallet-adapter-react';
 import * as anchor from "@coral-xyz/anchor";
 import {Program, AnchorProvider, BN} from "@coral-xyz/anchor";
-import { PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY, SYSVAR_CLOCK_PUBKEY } from "@solana/web3.js";
-import { TOKEN_PROGRAM_ID, getAssociatedTokenAddressSync } from "@solana/spl-token";
-import { useMemo, useCallback } from 'react';
+import {PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY, SYSVAR_CLOCK_PUBKEY, Connection} from "@solana/web3.js";
+import {TOKEN_PROGRAM_ID, getAssociatedTokenAddressSync} from "@solana/spl-token";
+import {useMemo, useCallback} from 'react';
 
 // --- Import Config and Types ---
-import { PROGRAM_ID, USDC_MINT_ADDRESS, CENTRAL_VAULT_TOKEN_ACCOUNT, BACKEND_URL } from '../config'; // Import constants
+import {PROGRAM_ID, USDC_MINT_ADDRESS, CENTRAL_VAULT_TOKEN_ACCOUNT, BACKEND_URL, RPC_ENDPOINT} from '../config'; // Import constants
 import idlJson from '../idl/order_manager.json'; // Import the IDL JSON
-import { OrderManager } from '../types/order_manager'; // Import generated types
-import { OrderData } from '../types'; // Import shared types
+import {OrderManager} from '../types/order_manager'; // Import generated types
+import {OrderData} from '../types'; // Import shared types
 
 
 // --- Seed Constants ---
@@ -17,9 +17,13 @@ const CONFIG_SEED = Buffer.from("config");
 const VAULT_AUTHORITY_SEED = Buffer.from("vault_authority");
 
 export const useOrderManager = () => {
-    const { connection } = useConnection();
     const wallet = useAnchorWallet(); // Gets the connected wallet adapter's wallet object
-
+    const connection: Connection = useMemo(() => {
+        return new Connection(RPC_ENDPOINT, {
+            commitment: "confirmed",
+            confirmTransactionInitialTimeout: 60 * 1000, // 1 minute
+        })
+    }, []);
     // --- Create Anchor Provider and Program instance ---
     // These will be undefined until the wallet is connected.
     const provider = useMemo(() => {
@@ -27,15 +31,15 @@ export const useOrderManager = () => {
         // Use the connected wallet to create the provider
         return new AnchorProvider(connection, wallet, {
             commitment: "confirmed",
-            preflightCommitment:"confirmed",
-            skipPreflight:true,
+            preflightCommitment: "confirmed",
+            skipPreflight: true,
         });
     }, [connection, wallet]);
 
     const program = useMemo(() => {
         if (!provider) return undefined;
         // Create the program instance using the IDL, Program ID, and Provider
-        return  new Program<OrderManager>(idlJson as OrderManager,provider);
+        return new Program<OrderManager>(idlJson as OrderManager, provider);
     }, [provider]);
 
     // --- PDA Calculation Helpers ---
