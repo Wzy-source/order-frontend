@@ -11,6 +11,10 @@ interface OrderItemProps {
     onActionComplete: () => void; // Callback to refresh list after action
 }
 
+// Calculate milliseconds in a day for clarity
+const MSEC_IN_DAY = 24 * 60 * 60 * 1000;
+const FOURTEEN_DAYS_IN_MSEC = 14 * MSEC_IN_DAY; // 默认14天 TODO 改为从区块链config中读取
+
 // Helper to get status string
 const getStatusString = (status: OrderStatus): string => {
     return OrderStatus[status] || 'Unknown';
@@ -44,14 +48,27 @@ export const OrderItem: React.FC<OrderItemProps> = ({order, role, onActionComple
         }
     };
 
+
     const canPay = role === 'buyer' && order.status === OrderStatus.Unpaid;
     const canRedeem = role === 'buyer' && order.status === OrderStatus.Paid; // Add time check logic here or in hook if needed
+    const canShowRedeemTime = order.status === OrderStatus.Paid;
+    const isPaid = order.status !== OrderStatus.Unpaid;
+    const isShipped = order.status !== OrderStatus.Unpaid && order.status!==OrderStatus.Paid;
+    const isConfirmed = order.status == OrderStatus.Confirmed || order.status == OrderStatus.Completed;
+    const isCompleted = order.status == OrderStatus.Completed;
     const canClaimAdvance = role === 'seller' &&
         order.paymentMode === PaymentMode.Advance &&
         (order.status === OrderStatus.Shipped || order.status === OrderStatus.Confirmed) &&
         new BN(order.claimedAmount).isZero(); // Only if advance not claimed
     const canClaimOrder = role === 'seller' &&
         order.status === OrderStatus.Confirmed; // Add timeout check logic if needed
+
+
+    // Calculate the redeemable time safely
+    let redeemableTimestamp = 0;
+    if (order.paidAt && parseInt(order.paidAt) > 0) {
+        redeemableTimestamp = parseInt(order.paidAt) * 1000 + FOURTEEN_DAYS_IN_MSEC;
+    }
 
 
     return (
@@ -61,11 +78,26 @@ export const OrderItem: React.FC<OrderItemProps> = ({order, role, onActionComple
             <p>Amount: {lamportsToDecimalString(order.orderAmount)} USDC</p>
             <p>Paid: {lamportsToDecimalString(order.paidAmount)} USDC</p>
             <p>Claimed: {lamportsToDecimalString(order.claimedAmount)} USDC</p>
+            <p>Escrow Account: 4dT8ogcUysTuxwk2UUYbZ9izaxqbnGzukdVvaus6QobN</p>
             <p>Mode: {order.paymentMode === PaymentMode.Advance ? `Advance (${order.advancePercentage}%)` : 'Direct'}</p>
             <p><small>Buyer: {order.buyer}</small></p>
             <p><small>Seller: {order.seller}</small></p>
             <p><small>Created: {new Date(parseInt(order.createdAt) * 1000).toLocaleString()}</small></p>
-            {/* Display other timestamps if needed */}
+            {isPaid &&
+              <p><small>Paid: {new Date(parseInt(order.paidAt) * 1000).toLocaleString()}</small></p>
+            }
+            {isShipped &&
+              <p><small>Shipped: {new Date(parseInt(order.shippedAt) * 1000).toLocaleString()}</small></p>
+            }
+            {isConfirmed &&
+              <p><small>Confirmed: {new Date(parseInt(order.confirmedAt) * 1000).toLocaleString()}</small></p>
+            }
+            {isCompleted &&
+              <p><small>Completed: {new Date(parseInt(order.completedAt) * 1000).toLocaleString()}</small></p>
+            }
+            {canShowRedeemTime &&
+              <p><small>Buyer Redeemable Time: {new Date(redeemableTimestamp).toLocaleString()}</small></p>
+            }
 
             {error && <p style={{color: 'red'}}>Error: {error}</p>}
 

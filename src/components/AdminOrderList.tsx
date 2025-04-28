@@ -72,7 +72,15 @@ export const AdminOrderList: React.FC = () => {
                     paymentMode:stringPaymentMode
                 };
             });
-            setOrders(transformedOrders);
+
+            const sortedOrders = transformedOrders.sort((orderA, orderB) => {
+                // Parse timestamps (default to 0 if parsing fails)
+                const timeA = parseInt(orderA.createdAt, 10) || 0;
+                const timeB = parseInt(orderB.createdAt, 10) || 0;
+                // For descending order (newest first), subtract timeA from timeB
+                return timeB - timeA;
+            });
+            setOrders(sortedOrders);
         } catch (err: unknown) {
             console.error("Failed to fetch orders for admin:", err);
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment

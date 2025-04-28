@@ -26,7 +26,8 @@ export const CreateOrderModal: React.FC<CreateOrderModalProps> = ({ product, onC
         try {
             // Generate a simple unique trade ID for demo purposes
             // In production, this should come from the backend or a more robust system
-            const tradeId = new BN(Date.now()); // Using timestamp as simple trade ID
+            const randomSuffix = Math.floor(Math.random() * 10000); // Simple random part
+            const tradeId = new BN(Date.now().toString() + randomSuffix.toString()); // Using timestamp as simple trade ID
 
             const orderAmountLamports = new BN(product.priceLamports);
             // 这里报错：

@@ -1,6 +1,6 @@
 import { useAnchorWallet, useConnection } from '@solana/wallet-adapter-react';
 import * as anchor from "@coral-xyz/anchor";
-import { Program, AnchorProvider, BN } from "@coral-xyz/anchor";
+import {Program, AnchorProvider, BN} from "@coral-xyz/anchor";
 import { PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY, SYSVAR_CLOCK_PUBKEY } from "@solana/web3.js";
 import { TOKEN_PROGRAM_ID, getAssociatedTokenAddressSync } from "@solana/spl-token";
 import { useMemo, useCallback } from 'react';
@@ -26,8 +26,9 @@ export const useOrderManager = () => {
         if (!wallet) return undefined;
         // Use the connected wallet to create the provider
         return new AnchorProvider(connection, wallet, {
-            preflightCommitment: "processed", // Or "confirmed"
             commitment: "confirmed",
+            preflightCommitment:"confirmed",
+            skipPreflight:true,
         });
     }, [connection, wallet]);
 

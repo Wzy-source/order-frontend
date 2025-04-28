@@ -86,9 +86,14 @@ export const OrderList: React.FC<OrderListProps> = ({ userPublicKey, role }) => 
                 (role === 'buyer' && order.buyer === userPublicKey) ||
                 (role === 'seller' && order.seller === userPublicKey)
             );
-            console.log(`Found ${filteredOrders.length} orders for ${role}`);
-            console.log(filteredOrders);
-            setOrders(filteredOrders);
+            const sortedOrders = filteredOrders.sort((orderA, orderB) => {
+                // Parse timestamps (default to 0 if parsing fails)
+                const timeA = parseInt(orderA.createdAt, 10) || 0;
+                const timeB = parseInt(orderB.createdAt, 10) || 0;
+                // For descending order (newest first), subtract timeA from timeB
+                return timeB - timeA;
+            });
+            setOrders(sortedOrders);
 
             /* // **Alternative (Direct Fetch - Inefficient):**
             if (!program) throw new Error("Program not loaded");
