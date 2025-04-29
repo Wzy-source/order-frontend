@@ -35,13 +35,15 @@ function MainApp() {
                 >
                     Seller View
                 </button>
-                {/* No margin needed on the last button */}
-                <button
+                {
+                    publicKey?.toString() == "Aqkf36U1AicRZrRzHDon7dfa98XsrMHtxnAVyfh7Y4B4" &&
+                  <button
                     onClick={() => setView('admin')}
                     disabled={view === 'admin'}
-                >
+                  >
                     Admin View
-                </button>
+                  </button>
+                }
             </div>
             <hr />
 
